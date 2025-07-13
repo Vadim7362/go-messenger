@@ -106,3 +106,20 @@ func Login (c *gin.Context) {
 		},
 	})
 }
+
+func Me(c *gin.Context) {
+	userID := c.MustGet("userID").(uint)
+
+	var user models.User
+	result := db.DB.First(&user, userID)
+	if result.Error != nil {
+			c.JSON(http.StatusNotFound, gin.H{"error": "Пользователь не найден"})
+			return
+	}
+
+	c.JSON(http.StatusOK, gin.H{
+			"id":       user.ID,
+			"username": user.Username,
+			"email":    user.Email,
+	})
+}
