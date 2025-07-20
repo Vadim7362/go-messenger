@@ -10,6 +10,7 @@ import (
 	"golang.org/x/crypto/bcrypt"
 
 	"messenger-api/internal/db"
+	"messenger-api/internal/metrics"
 	"messenger-api/internal/models"
 )
 
@@ -43,7 +44,7 @@ func Register (c *gin.Context) {
 		c.JSON(http.StatusInternalServerError, gin.H{"error": "Ошибка при создании пользователя"})
 		return
 	}
-
+	metrics.RegisterCounter.Inc()
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
 		"exp": time.Now().Add(time.Hour * 24).Unix(),
@@ -68,7 +69,7 @@ type LoginInput struct {
 	Password string `json:"password" binding:"required"`
 }
 
-func Login (c *gin.Context) {
+func Login(c *gin.Context) {
 	var input LoginInput
 	if err := c.ShouldBindJSON(&input); err != nil {
 		c.JSON(http.StatusBadRequest, gin.H{"error": err.Error()})
@@ -88,6 +89,9 @@ func Login (c *gin.Context) {
 		return
 	}
 
+	// ✅ Успешный логин — инкрементируем счётчик
+	metrics.LoginCounter.Inc()
+
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, jwt.MapClaims{
 		"sub": user.ID,
 		"exp": time.Now().Add(time.Hour * 72).Unix(),
@@ -100,9 +104,9 @@ func Login (c *gin.Context) {
 	c.JSON(http.StatusOK, gin.H{
 		"token": tokenString,
 		"user": gin.H{
-			"id": user.ID,
+			"id":       user.ID,
 			"username": user.Username,
-			"email": user.Email,
+			"email":    user.Email,
 		},
 	})
 }

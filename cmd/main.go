@@ -2,12 +2,16 @@ package main
 
 import (
 	"log"
+	"net/http"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"github.com/joho/godotenv"
 
+	"github.com/prometheus/client_golang/prometheus/promhttp"
+
 	"messenger-api/internal/db"
+	"messenger-api/internal/metrics"
 	"messenger-api/internal/routes"
 )
 
@@ -17,7 +21,15 @@ func main() {
 		log.Fatal("Ошибка при загрузке .env файла")
 	}
 	db.Connect()
+	metrics.InitMetrics()
+	go func() {
+		http.Handle("/metrics", promhttp.Handler())
+		log.Println("Метрики доступны на http://localhost:2112/metrics")
+		log.Fatal(http.ListenAndServe(":2112", nil))
+	}()
+
 	app := gin.Default()
+
 	app.Use(cors.New(cors.Config{
 		AllowOrigins:     []string{"http://localhost:3001"},
 		AllowMethods:     []string{"GET", "POST", "PUT", "DELETE", "OPTIONS"},
@@ -25,6 +37,9 @@ func main() {
 		ExposeHeaders:    []string{"Content-Length"},
 		AllowCredentials: true,
 	}))
+	app.OPTIONS("/*cors", func(c *gin.Context) {
+		c.AbortWithStatus(204)
+	})
 	routes.SetupRoutes(app)
 	log.Fatal(app.Run(":3000"))
 }
