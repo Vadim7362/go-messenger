@@ -1,12 +1,12 @@
-# Go Messenger API
+# 📨 Messenger API
 
-Простой backend-мессенджер на Go (Gin, GORM, PostgreSQL)
+Это backend-сервис для простого мессенджера на Go, использующего стек:
 
-## Возможности
-
-- Регистрация `/register`
-- Логин `/login`
-- Защищённый маршрут `/me`
+- Go (Gin)
+- PostgreSQL (через GORM)
+- Redis (для хранения refresh токенов)
+- Prometheus + Grafana (мониторинг)
+- JWT для авторизации
 
 ## 📡 Monitoring
 
@@ -19,7 +19,7 @@
 - `messenger_user_logins_total` — количество логинов
 - `messenger_user_registrations_total` — количество регистраций
 
-Метрики доступны по адресу:  
+Метрики доступны по адресу:
 [`http://localhost:2112/metrics`](http://localhost:2112/metrics)
 
 ---
@@ -33,3 +33,13 @@
    ```bash
    docker-compose up --build
    ```
+
+`````
+
+## 🚀 Быстрый старт
+
+````bash
+git clone https://github.com/your-username/messenger-api.git
+cd messenger-api
+docker-compose up --build
+`````
