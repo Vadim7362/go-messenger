@@ -8,13 +8,6 @@
 - Prometheus + Grafana (мониторинг)
 - JWT для авторизации
 
-## 🚀 Быстрый старт
-
-````bash
-git clone https://github.com/your-username/messenger-api.git
-cd messenger-api
-docker-compose up --build
-
 ## 📡 Monitoring
 
 Система мониторинга включает **Prometheus** и **Grafana**, развёрнутые через Docker Compose.
@@ -39,4 +32,14 @@ docker-compose up --build
 2. Запустите сервисы:
    ```bash
    docker-compose up --build
-````
+   ```
+
+`````
+
+## 🚀 Быстрый старт
+
+````bash
+git clone https://github.com/your-username/messenger-api.git
+cd messenger-api
+docker-compose up --build
+`````
