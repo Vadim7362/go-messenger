@@ -12,6 +12,7 @@ import (
 
 	"messenger-api/internal/db"
 	"messenger-api/internal/metrics"
+	"messenger-api/internal/redisdb"
 	"messenger-api/internal/routes"
 )
 
@@ -22,6 +23,7 @@ func main() {
 	}
 	db.Connect()
 	metrics.InitMetrics()
+	redisdb.InitRedis("redis:6379", "", 0)
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
 		log.Println("Метрики доступны на http://localhost:2112/metrics")
