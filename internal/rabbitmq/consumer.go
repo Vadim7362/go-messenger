@@ -20,7 +20,7 @@ func StartConsumer() {
 	defer ch.Close()
 
 	q, err := ch.QueueDeclare(
-		"messages_queue", // очередь та же, что и у продюсера
+		"messages_queue",
 		true,
 		false,
 		false,
@@ -34,8 +34,8 @@ func StartConsumer() {
 	msgs, err := ch.Consume(
 		q.Name,
 		"",
-		true,  // авто-подтверждение
-		false, // не эксклюзивный
+		true,
+		false,
 		false,
 		false,
 		nil,

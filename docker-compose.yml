@@ -8,7 +8,7 @@ services:
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-      - "2112:2112" # Prometheus metrics
+      - "2112:2112"
     env_file:
       - .env
     restart: unless-stopped
@@ -51,8 +51,8 @@ services:
     container_name: rabbitmq
     restart: unless-stopped
     ports:
-      - "5672:5672" # AMQP
-      - "15672:15672" # Web UI
+      - "5672:5672"
+      - "15672:15672"
     environment:
       RABBITMQ_DEFAULT_USER: guest
       RABBITMQ_DEFAULT_PASS: guest

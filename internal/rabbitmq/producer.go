@@ -20,22 +20,22 @@ func PublishMessage(message string) error {
 	defer ch.Close()
 
 	queue, err := ch.QueueDeclare(
-		"messages_queue", // имя очереди
-		true,             // durable
-		false,            // autoDelete
-		false,            // exclusive
-		false,            // noWait
-		nil,              // arguments
+		"messages_queue",
+		true,
+		false,
+		false,
+		false,
+		nil,
 	)
 	if err != nil {
 		return err
 	}
 
 	err = ch.Publish(
-		"",           // exchange
-		queue.Name,   // routing key (имя очереди)
-		false,        // mandatory
-		false,        // immediate
+		"",
+		queue.Name,
+		false,
+		false,
 		amqp.Publishing{
 			ContentType: "text/plain",
 			Body:        []byte(message),
@@ -45,7 +45,6 @@ func PublishMessage(message string) error {
 		return err
 	}
 
-	log.Println("📨 Очередь объявлена:", queue.Name)
 	log.Printf("✅ Сообщение отправлено в RabbitMQ: %s", message)
 	return nil
 }
