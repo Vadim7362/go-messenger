@@ -3,6 +3,7 @@ package main
 import (
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
@@ -12,6 +13,7 @@ import (
 
 	"messenger-api/internal/db"
 	"messenger-api/internal/metrics"
+	"messenger-api/internal/rabbitmq"
 	"messenger-api/internal/redisdb"
 	"messenger-api/internal/routes"
 )
@@ -24,6 +26,16 @@ func main() {
 	db.Connect()
 	metrics.InitMetrics()
 	redisdb.InitRedis("redis:6379", "", 0)
+
+	go func() {
+		time.Sleep(3 * time.Second)
+		err := rabbitmq.PublishMessage("👋 Привет от Go-продюсера через RabbitMQ")
+		if err != nil {
+			log.Printf("❌ Ошибка при отправке в RabbitMQ: %v", err)
+		}
+	}()
+	go rabbitmq.StartConsumer()
+
 	go func() {
 		http.Handle("/metrics", promhttp.Handler())
 		log.Println("Метрики доступны на http://localhost:2112/metrics")
