@@ -2,33 +2,38 @@ version: "3.8"
 
 services:
   backend:
-    depends_on:
-      - db
-      - prometheus
-      - redis
+    container_name: messenger-api-backend
     build:
       context: .
       dockerfile: Dockerfile
     ports:
       - "3000:3000"
-      - "2112:2112"
+      - "2112:2112" # Prometheus metrics
     env_file:
       - .env
+    restart: unless-stopped
+    depends_on:
+      - db
+      - redis
+      - prometheus
+      - rabbitmq
     networks:
-      - monitoring
+      - backend_net
 
   db:
     image: postgres:15
     container_name: messenger-api-db
-    restart: always
+    restart: unless-stopped
     ports:
       - "5432:5432"
     environment:
       POSTGRES_DB: messenger
       POSTGRES_USER: postgres
       POSTGRES_PASSWORD: postgres
+    volumes:
+      - db_data:/var/lib/postgresql/data
     networks:
-      - monitoring
+      - backend_net
 
   redis:
     image: redis:7.2
@@ -36,33 +41,54 @@ services:
     restart: unless-stopped
     ports:
       - "6379:6379"
+    volumes:
+      - redis_data:/data
     networks:
-      - monitoring
+      - backend_net
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672" # AMQP
+      - "15672:15672" # Web UI
+    environment:
+      RABBITMQ_DEFAULT_USER: guest
+      RABBITMQ_DEFAULT_PASS: guest
+    networks:
+      - backend_net
 
   prometheus:
     image: prom/prometheus
-    volumes:
-      - ./prometheus.yml:/etc/prometheus/prometheus.yml
+    container_name: prometheus
+    restart: unless-stopped
     ports:
       - "9090:9090"
+    volumes:
+      - ./prometheus.yml:/etc/prometheus/prometheus.yml
     networks:
-      - monitoring
+      - backend_net
 
   grafana:
     image: grafana/grafana
+    container_name: grafana
+    restart: unless-stopped
     ports:
       - "3002:3000"
     volumes:
       - ./grafana/provisioning:/etc/grafana/provisioning
-      - grafana-data:/var/lib/grafana
-    networks:
-      - monitoring
+      - grafana_data:/var/lib/grafana
     depends_on:
       - prometheus
-
-networks:
-  monitoring:
-    driver: bridge
+    networks:
+      - backend_net
 
 volumes:
-  grafana-data:
+  db_data:
+  redis_data:
+  grafana_data:
+
+networks:
+  backend_net:
+    driver: bridge
